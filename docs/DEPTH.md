@@ -12,6 +12,7 @@
 | M4 重叠约束 | 查看并复算重叠约束 | `/api/m4_segments` | `app/modules/m4_segments/rules.py` | `tests/test_segments.py` |
 | M5 人数估界 | 查看并复算人数估界 | `/api/m5_calculate` | `app/modules/m5_calculate/rules.py` | `tests/test_calculate.py` |
 | M6 日汇对账 | 查看并复算日汇对账 | `/api/m6_reconcile` | `app/modules/m6_reconcile/compare.py` | `tests/test_reconcile.py` |
+| 营业日边界 | 营业日区间与定向重算 | `/api/daily_reports` | `app/business_day/calendar.py` | `tests/test_business_day.py` |
 | M7 报告归档 | 查看并复算报告归档 | `/api/m7_archive` | `app/modules/m7_archive/export_out.py` | `tests/test_archive.py` |
 
 ## 陷阱登记
@@ -31,6 +32,11 @@
 | TRAP-26 | 旧版本复核 | 覆盖新结论 | 事务条件更新 | `app/store.py` | `tests/test_archive.py::test_stale_review` |
 | TRAP-11 | 时区混用 | 同刻不同桶 | UTC归整 | `app/modules/m2_mapping/coerce.py` | `tests/test_versions.py::test_same_instant` |
 | TRAP-19 | 三方约束矛盾 | 输出伪精确数 | 非负原子区域可行检查 | `app/modules/m5_calculate/rules.py` | `tests/test_calculate.py::test_three_way_contradiction` |
+| TRAP-30 | 固定凌晨切点 | 跨零点夜场被自然日拆错 | 边界跟随开门/闭店场次，标签取开门日 | `app/business_day/calendar.py` | `tests/test_business_day.py::test_cross_midnight_session_keeps_opening_day` |
+| TRAP-31 | 临时闭店/提前开门 | 区间与日报串日 | 补录 open/close 边界优先于空档推断 | `app/business_day/calendar.py` | `tests/test_business_day.py::test_explicit_boundary_splits_short_gap_session` |
+| TRAP-32 | 换时区全局重算 | 无关营业日被重复累计 | 归属 diff 仅重算受影响营业日 | `app/business_day/service.py` | `tests/test_business_day_api.py::test_timezone_switch_scopes_recalc` |
+| TRAP-33 | 同批重跑重复累计 | 日报数值翻倍 | recompute_id 幂等去重 | `app/daily_report.py` | `tests/test_daily_report.py::test_same_batch_rerun_does_not_double_count` |
+| TRAP-34 | 切版失败污染正式日报 | 旧版被半写覆盖 | 单事务切版，失败回滚保留旧版 | `app/daily_report.py` | `tests/test_daily_report.py::test_failed_publish_keeps_old_report` |
 
 ## 对账规则
 

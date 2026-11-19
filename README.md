@@ -18,7 +18,12 @@ docker compose up --build -d
 - 重叠约束：`/m4_segments`、`/api/m4_segments`
 - 人数估界：`/m5_calculate`、`/api/m5_calculate`
 - 日汇对账：`/m6_reconcile`、`/api/m6_reconcile`
+- 营业日报：`/api/daily_reports`、`/api/daily_reports/recompute`
 - 报告归档：`/m7_archive`、`/api/m7_archive`
+
+## 营业日边界
+
+营业日边界跟随**营业场次**（开门/闭店营业事实），不采用固定凌晨切点或自然日零点：一场开门到闭店为一个营业日，标签取营业时区下的开门日，夜场跨零点的小时桶仍归开门日。默认按相邻小时桶空档（超 `gap_hours`）推断场次；临时闭店或提前开门可在“边界重算”补录 `open`/`close` 事实，补录优先。换时区或补录边界只重算归属变化的营业日，同一批重跑按 `recompute_id` 幂等去重不重复累计，切版失败回滚并保留旧版正式日报。
 
 ## 核心规则
 
